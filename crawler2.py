@@ -160,3 +160,61 @@ class NaverWebtoonCrawler:
         except FileNotFoundError:
             if not init:
                 print('파일이 없습니다')
+
+    def make_list_html(self):
+        """
+        self.episode_list를 HTML파일로 만들어준다
+        webtoon/{webtoon_id}.html
+
+        1. webtoon폴더 있는지 검사 후 생성
+        2. webtoon/{webtoon_id}.html 파일객체 할당 또는 with문으로 open
+        3. open한 파일에 HTML앞부분 작성
+        4. episode_list를 for문돌며 <tr>...</tr>부분 반복작성
+        5. HTML뒷부분 작성
+        6. 파일닫기 또는 with문 빠져나가기
+        7. 해당파일 경로 리턴
+        """
+        """
+        ex)
+        <html>
+        <head>
+            <meta charset="utf-8">
+        </head>
+        <body>
+            <table>
+                <!-- 이부분을 episode_list의 길이만큼 반복 -->
+                <tr>
+                    <td><img src="...."></td>
+                    <td>제목</td>
+                    <td>별점</td>
+                    <td>날짜</td>
+                </tr>
+            </table>
+        </body>
+        </html>
+        :return: 파일의 경로
+        """
+        # webtoon/ 폴더 존재하는지 확인 후 없으면 생성
+        if not os.path.isdir('webtoon'):
+            os.mkdir('webtoon')
+        filename = f'webtoon/{self.webtoon_id}.html'
+        with open(filename, 'wt') as f:
+            # HTML 앞부분 작성
+            f.write(utils.LIST_HTML_HEAD)
+
+            # episode_list순회하며 나머지 코드 작성
+            for e in self.episode_list:
+                f.write(utils.LIST_HTML_TR.format(
+                    img_url=e.img_url,
+                    title=e.title,
+                    rating=e.rating,
+                    created_date=e.created_date
+                ))
+            # HTML 뒷부분 작성
+            f.write(utils.LIST_HTML_TAIL)
+        return filename
+
+
+if __name__ == '__main__':
+    crawler = NaverWebtoonCrawler(696617)
+    crawler.make_list_html()

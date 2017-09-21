@@ -1,6 +1,7 @@
 # Custom
 .idea/
 db/
+webtoon/
 
 
 # Created by https://www.gitignore.io/api/linux,macos,python,pycharm
