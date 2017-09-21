@@ -23,6 +23,8 @@ import os
 
 import pickle
 
+import requests
+
 import utils
 
 
@@ -161,6 +163,25 @@ class NaverWebtoonCrawler:
             if not init:
                 print('파일이 없습니다')
 
+    def save_list_thumbnail(self):
+        """
+        webtoon/{webtoon_id}_thumbnail/<episode_no>.jpg
+        1. webtoon/{webtoon_id}_thumbnail이라는 폴더가 존재하는지 확인 후 생성
+        2. self.episode_list를 순회하며 각 episode의 img_url경로의 파일을 저장
+        :return: 저장한 thumbnail개수
+        """
+        # webtoon/{self.webtoon_id}에 해당하는 폴더 생성
+        thumbnail_dir = f'webtoon/{self.webtoon_id}_thumbnail'
+        os.makedirs(thumbnail_dir, exist_ok=True)
+
+        # 각 episode의 img_url속성에 해당하는 이미지를 다운로드
+        for episode in self.episode_list:
+            response = requests.get(episode.img_url)
+            filepath = f'{thumbnail_dir}/{episode.no}.jpg'
+            if not os.path.exists(filepath):
+                with open(filepath, 'wb') as f:
+                    f.write(response.content)
+
     def make_list_html(self):
         """
         self.episode_list를 HTML파일로 만들어준다
@@ -205,7 +226,7 @@ class NaverWebtoonCrawler:
             # episode_list순회하며 나머지 코드 작성
             for e in self.episode_list:
                 f.write(utils.LIST_HTML_TR.format(
-                    img_url=e.img_url,
+                    img_url=f'./{self.webtoon_id}_thumbnail/{e.no}.jpg',
                     title=e.title,
                     rating=e.rating,
                     created_date=e.created_date
@@ -217,4 +238,5 @@ class NaverWebtoonCrawler:
 
 if __name__ == '__main__':
     crawler = NaverWebtoonCrawler(696617)
+    crawler.save_list_thumbnail()
     crawler.make_list_html()
