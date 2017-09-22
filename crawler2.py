@@ -74,6 +74,23 @@ class NaverWebtoonCrawler:
         # return cur_episode_count == total_episode_count
         return len(self.episode_list) == self.total_episode_count
 
+    def find_webtoon(self, title):
+        """
+        title에 주어진 문자열로 get_webtoon_list로 받아온 웹툰 목록에서
+        일치하거나 문자열이 포함되는 Webtoon목록을 리턴
+        :param title: 찾을 웹툰 제목
+        :return: list(Webtoon)
+        """
+        # results = []
+        # webtoon_list = self.get_webtoon_list()
+        # for webtoon in webtoon_list:
+        #     if title in webtoon.title:
+        #         results.append(webtoon)
+        # return results
+        return [webtoon for webtoon in
+                self.get_webtoon_list()
+                if title in webtoon.title]
+
     def get_webtoon_list(self):
         """
         네이버웹툰의 모든 웹툰들을 가져온다
