@@ -303,18 +303,21 @@ class NaverWebtoonCrawler:
         filename = f'webtoon/{self.webtoon.title_id}.html'
         with open(filename, 'wt') as f:
             # HTML 앞부분 작성
-            f.write(utils.LIST_HTML_HEAD)
+            list_html_head = open('html/list_html_head.html', 'rt').read()
+            f.write(list_html_head)
 
             # episode_list순회하며 나머지 코드 작성
             for e in self.episode_list:
-                f.write(utils.LIST_HTML_TR.format(
+                list_html_tr = open('html/list_html_tr.html', 'rt').read()
+                f.write(list_html_tr.format(
                     img_url=f'./{self.webtoon.title_id}_thumbnail/{e.no}.jpg',
                     title=e.title,
                     rating=e.rating,
                     created_date=e.created_date
                 ))
             # HTML 뒷부분 작성
-            f.write(utils.LIST_HTML_TAIL)
+            list_html_tail = open('html/list_html_tail.html', 'rt').read()
+            f.write(list_html_tail)
         return filename
 
 
