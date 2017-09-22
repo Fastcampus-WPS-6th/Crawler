@@ -22,8 +22,10 @@ class NaverWebtoonCrawler생성
 import os
 
 import pickle
+from urllib.parse import urlparse, parse_qs
 
 import requests
+from bs4 import BeautifulSoup
 
 import utils
 
@@ -71,6 +73,35 @@ class NaverWebtoonCrawler:
         # return False
         # return cur_episode_count == total_episode_count
         return len(self.episode_list) == self.total_episode_count
+
+    def get_webtoon_list(self):
+        """
+        네이버웹툰의 모든 웹툰들을 가져온다
+        :return:
+        """
+        url = 'http://comic.naver.com/webtoon/weekday.nhn'
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'lxml')
+        webtoon_list = set()
+
+        daily_all = soup.select_one('.list_area.daily_all')
+        days = daily_all.select('div.col')
+        for day in days:
+            items = day.select('li')
+            for item in items:
+                img_url = item.select_one('div.thumb').a.img['src']
+                title = item.select_one('a.title').get_text(strip=True)
+
+                url_webtoon = item.select_one('a.title')['href']
+                parse_result = urlparse(url_webtoon)
+                queryset = parse_qs(parse_result.query)
+                title_id = queryset['titleId'][0]
+
+                webtoon = utils.Webtoon(title_id=title_id, img_url=img_url, title=title)
+                webtoon_list.add(webtoon)
+
+        webtoon_list = sorted(list(webtoon_list), key=lambda webtoon: webtoon.title)
+        return webtoon_list
 
     def update_episode_list(self, force_update=False):
         """
