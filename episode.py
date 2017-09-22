@@ -17,6 +17,7 @@ class Episode:
         self._created_date = created_date
 
         self.thumbnail_dir = f'webtoon/{self.webtoon.title_id}_thumbnail'
+        self.save_thumbnail()
 
     @property
     def webtoon(self):
