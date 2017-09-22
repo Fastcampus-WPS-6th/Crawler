@@ -319,6 +319,6 @@ class NaverWebtoonCrawler:
 
 
 if __name__ == '__main__':
-    crawler = NaverWebtoonCrawler('피에는')
-    crawler.get_last_page_episode_list()
+    crawler = NaverWebtoonCrawler('선천적')
+    crawler.update_episode_list()
 
