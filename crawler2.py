@@ -20,14 +20,12 @@ class NaverWebtoonCrawler생성
 
 """
 import os
-
 import pickle
-from urllib.parse import urlparse, parse_qs
-
 import requests
 from bs4 import BeautifulSoup
 
 import utils
+from urllib.parse import urlparse, parse_qs
 
 
 class NaverWebtoonCrawler:
@@ -89,7 +87,7 @@ class NaverWebtoonCrawler:
         requests를 사용
         :return: 총 episode수 (int)
         """
-        el = utils.get_webtoon_episode_list(self.webtoon.title_id)
+        el = utils.get_webtoon_episode_list(self.webtoon)
         return int(el[0].no)
 
     @property
@@ -176,6 +174,8 @@ class NaverWebtoonCrawler:
         :param force_update: 이미 존재하는 episode도 강제로 업데이트
         :return: 추가된 episode의 수 (int)
         """
+        if force_update:
+            self.episode_list = list()
         recent_episode_no = self.episode_list[0].no if self.episode_list else 0
         print('- Update episode list start (Recent episode no: %s) -' % recent_episode_no)
         page = 1
@@ -183,7 +183,7 @@ class NaverWebtoonCrawler:
         while True:
             print('  Get webtoon episode list (Loop %s)' % page)
             # 계속해서 증가하는 'page'를 이용해 다음 episode리스트들을 가져옴
-            el = utils.get_webtoon_episode_list(self.webtoon.title_id, page)
+            el = utils.get_webtoon_episode_list(self.webtoon, page)
             # 가져온 episode list를 순회
             for episode in el:
                 # 각 episode의 no가 recent_episode_no보다 클 경우,
@@ -204,12 +204,21 @@ class NaverWebtoonCrawler:
             break
 
         self.episode_list = new_list + self.episode_list
+        self.save()
         return len(new_list)
 
     def get_last_page_episode_list(self):
-        el = utils.get_webtoon_episode_list(self.webtoon.title_id, 99999)
+        el = utils.get_webtoon_episode_list(self.webtoon, 99999)
         self.episode_list = el
         return len(self.episode_list)
+
+    def get_episode_detail(self, episode):
+        """
+        주어진 Episode의 상세페이지를 크롤링
+            1. 상세페이지를 파싱해서 img태그들의 src속성들을 가져옴
+        :param episode:
+        :return:
+        """
 
     def save(self, path=None):
         """
@@ -268,7 +277,7 @@ class NaverWebtoonCrawler:
 
         # 각 episode의 img_url속성에 해당하는 이미지를 다운로드
         for episode in self.episode_list:
-            response = requests.get(episode.img_url)
+            response = requests.get(episode.url_thumbnail)
             filepath = f'{thumbnail_dir}/{episode.no}.jpg'
             if not os.path.exists(filepath):
                 with open(filepath, 'wb') as f:

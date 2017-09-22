@@ -111,7 +111,7 @@ def get_webtoon_episode_list(webtoon_id, page=1):
         # Episode형 namedtuple객체 생성, episode_list에 추가
         episode = Episode(
             no=no,
-            img_url=img_url,
+            url_thumbnail=img_url,
             title=title,
             rating=rating,
             created_date=created_date
